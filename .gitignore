@@ -1,0 +1,49 @@
+# Ignore Visual Studio specific files
+.vs/
+.vs2019/
+.vs2017/
+.idea/
+
+# Ignore build directories
+bin/
+obj/
+
+# Ignore user-specific files
+*.user
+*.userosscache
+*.suo
+*.userprefs
+
+# Ignore Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Ignore Mac system files
+.DS_Store
+
+# Ignore log files
+*.log
+
+# Ignore all .exe, .dll, .pdb, .idb files
+*.exe
+*.dll
+*.pdb
+*.idb
+
+# Ignore all .cache files (for some IDEs like Sublime Text, etc.)
+*.cache
+
+# Ignore npm dependencies (Node.js projects)
+node_modules/
+
+# Ignore compiled Python files
+*.pyc
+
+# Ignore all .swp files (Vim/Emacs temporary files)
+*.swp
+
+# Ignore JetBrains project files (e.g., PyCharm, IntelliJ)
+.idea/
+
+# Ignore IntelliJ's config files
+*.iml
