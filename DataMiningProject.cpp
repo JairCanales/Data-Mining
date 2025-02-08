@@ -121,7 +121,7 @@ double jaccardDistance(const vector<int>& a, const vector<int>& b) {
 int classifyKNN(const vector<DataPoint>& trainingData, const vector<int>& testSample, int K) {
     vector<pair<double, int>> distances;
 
-    // Compute Hamming distance from test sample to all training samples
+    // Find distance
     for (const auto& trainPoint : trainingData) {
         double dist = jaccardDistance(trainPoint.features, testSample);
         distances.push_back({ dist, trainPoint.label });
