@@ -21,13 +21,13 @@ int classifyKNN(const vector<DataPoint>& trainingData, const vector<int>& testSa
 
 int main(int argc, char* argv[])
 {
-    // make sure there are 3 arguments
+    // make sure there are 2 arguments
     if (argc != 4)
     {
         cout << "Usage: <F> <T> <K>" << endl;
         cout << "F: Name of the training file" << endl;
         cout << "T: Name of the testing file" << endl;
-        cout << "K: Number of Nearest Neighbors" << endl;
+        cout << "K: All or Odd (0|1)" << endl;
         return 1;
     }
 
@@ -35,21 +35,34 @@ int main(int argc, char* argv[])
     // collect the data from arguments
     string trainName = argv[1];
     string testName = argv[2];
-    int nearestNeighbors = stoi(argv[3]);
+    int evenodd = stoi(argv[3]);
 
     vector<DataPoint> trainingData = gatherData(trainName);
     vector<DataPoint> testData = gatherData(testName);
-
-    //test the test data
-    int numOfCorrect = 0;
-    for (int i = 0; i < testData.size(); i++) {
-        int guess = classifyKNN(trainingData, testData[i].features, nearestNeighbors);
-        cout << "Guess: " << guess << " | Real Data: " << testData[i].label << endl;
-        if(guess == testData[i].label)
-            numOfCorrect++;
-
+    //calculate increase
+    int increase = 0;
+    if (evenodd == 0) {
+        increase = 1;
     }
-    cout << "Prediction Score: " << (double)numOfCorrect / (double)testData.size();
+    else {
+        increase = 2;
+    }
+    //num Of Runs
+    int run = 1;
+    while (run < trainingData.size()) {
+        //test the test data
+        int numOfCorrect = 0;
+        for (int i = 0; i < testData.size(); i++) {
+            int guess = classifyKNN(trainingData, testData[i].features, run);
+            //cout << "Guess: " << guess << " | Real Data: " << testData[i].label << endl;
+            if (guess == testData[i].label)
+                numOfCorrect++;
+
+        }
+        cout << "K: " << run << " | Prediction Score: " << (double)numOfCorrect / (double)testData.size();
+        cout << endl;
+        run += increase;
+    }
 }
 
 vector<DataPoint> gatherData(string fileName) {
