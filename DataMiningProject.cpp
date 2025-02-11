@@ -1,3 +1,6 @@
+// This code implements a K-Nearest neighbor (KNN) classifier using Jaccard's distance.
+
+// Headers & Structs
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -5,7 +8,6 @@
 #include <vector>
 #include <map>
 #include <algorithm>
-
 
 using namespace std;
 
@@ -15,6 +17,7 @@ struct DataPoint {
     int label;
 };
 
+// Function Declarations 
 vector<DataPoint> gatherData(string fileName);
 double jaccardDistance(const vector<int>& a, const vector<int>& b);
 int classifyKNN(const vector<DataPoint>& trainingData, const vector<int>& testSample, int K);
