@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
         increase = 2;
     }
     //num Of Runs
-    int numOfK = 1;
+    int numOfK = 3;
     
     //test the test data
     for (int h = 0; h < folds.size(); h++) {
