@@ -8,6 +8,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <random>
 
 using namespace std;
 
@@ -22,26 +23,28 @@ vector<DataPoint> gatherData(string fileName);
 double jaccardDistance(const vector<int>& a, const vector<int>& b);
 int classifyKNN(const vector<DataPoint>& trainingData, const vector<int>& testSample, int K);
 
+vector<DataPoint> shuffleData(vector<DataPoint> data);
+vector<vector<DataPoint>> generateFolds(vector<DataPoint> data);
+
 int main(int argc, char* argv[])
 {
     // make sure there are 2 arguments
-    if (argc != 4)
+    if (argc != 3)
     {
-        cout << "Usage: <F> <T> <K>" << endl;
-        cout << "F: Name of the training file" << endl;
-        cout << "T: Name of the testing file" << endl;
+        cout << "Usage: <F> <K>" << endl;
+        cout << "F: Name of the Test File" << endl;
         cout << "K: All or Odd (0|1)" << endl;
         return 1;
     }
 
 
     // collect the data from arguments
-    string trainName = argv[1];
-    string testName = argv[2];
-    int evenodd = stoi(argv[3]);
-
-    vector<DataPoint> trainingData = gatherData(trainName);
-    vector<DataPoint> testData = gatherData(testName);
+    string fileName = argv[1];
+    int evenodd = stoi(argv[2]);
+    vector<DataPoint> data = gatherData(fileName);
+    data = shuffleData(data);
+    //create folds
+    vector<vector<DataPoint>> folds = generateFolds(data);
     //calculate increase
     int increase = 0;
     if (evenodd == 0) {
@@ -51,21 +54,38 @@ int main(int argc, char* argv[])
         increase = 2;
     }
     //num Of Runs
-    int run = 1;
-    while (run < trainingData.size()) {
-        //test the test data
-        int numOfCorrect = 0;
-        for (int i = 0; i < testData.size(); i++) {
-            int guess = classifyKNN(trainingData, testData[i].features, run);
-            //cout << "Guess: " << guess << " | Real Data: " << testData[i].label << endl;
-            if (guess == testData[i].label)
-                numOfCorrect++;
-
+    int numOfK = 1;
+    
+    //test the test data
+    for (int h = 0; h < folds.size(); h++) {
+        int TP = 0, TN = 0, FP = 0, FN = 0;
+        for (int i = 0; i < folds.size(); i++) {
+            //make sure that training is not the same as the tests
+            if (i == h)
+                continue;
+            for (int j = 0; j < folds[0].size(); j++) {
+                int guess = classifyKNN(folds[h], folds[i][j].features, numOfK);
+                //cout << "Guess: " << guess << " | Real Data: " << testData[i].label << endl;
+                //detect what it is
+                int label = folds[i][j].label;
+                if (guess == 0 && label == 0)
+                    TN++;
+                else if (guess == 1 && label == 0)
+                    FP++;
+                else if (guess == 0 && label == 1)
+                    FN++;
+                else if (guess == 1 && label == 1)
+                    TP++;
+            }
         }
-        cout << "K: " << run << " | Prediction Score: " << (double)numOfCorrect / (double)testData.size();
-        cout << endl;
-        run += increase;
+        //display the stats
+        cout << "Fold " << h << ": " << endl;
+        cout << "TP: " << TP << endl;
+        cout << "TN: " << TN << endl;
+        cout << "FP: " << FP << endl;
+        cout << "FN: " << FN << endl << endl;
     }
+    
 }
 
 vector<DataPoint> gatherData(string fileName) {
@@ -111,6 +131,30 @@ vector<DataPoint> gatherData(string fileName) {
 
     file.close();
     return data;
+}
+vector<DataPoint> shuffleData(vector<DataPoint> data) {
+
+    random_device rd;  // Obtain a random seed
+    mt19937 g(rd());   // Initialize a Mersenne Twister PRNG
+
+    // Shuffle the vector
+    shuffle(data.begin(), data.end(), g);
+
+    return data;
+}
+vector<vector<DataPoint>> generateFolds(vector<DataPoint> data) {
+    int numOfFolds = 5;
+    int dataPerFold = data.size() / numOfFolds;
+    vector<vector<DataPoint>> folds(numOfFolds, vector<DataPoint>(dataPerFold));
+
+    int index = 0;
+    for (int i = 0; i < numOfFolds; i++) {
+        for (int j = 0; j < dataPerFold; j++) {
+            folds[i][j] = data[index];
+            index++;
+        }
+    }
+    return folds;
 }
 double jaccardDistance(const vector<int>& a, const vector<int>& b) {
     //cout differences and both positives
